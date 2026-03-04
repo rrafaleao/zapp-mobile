@@ -1,14 +1,28 @@
-suspend fun login(email: String, password: String): Result<AuthResponse> {
-    // Mock: qualquer email/senha funciona
-    val fakeUser = User(1, "Usuário Teste", email)
-    val fakeResponse = AuthResponse("fake-token-123", fakeUser)
-    session.saveSession(fakeResponse.token, fakeUser.name, fakeUser.email)
-    return Result.success(fakeResponse)
-}
+package com.zappshop.app.data.repository
 
-suspend fun register(name: String, email: String, password: String): Result<AuthResponse> {
-    val fakeUser = User(1, name, email)
-    val fakeResponse = AuthResponse("fake-token-123", fakeUser)
-    session.saveSession(fakeResponse.token, fakeUser.name, fakeUser.email)
-    return Result.success(fakeResponse)
+import com.zappshop.app.data.local.SessionManager
+import com.zappshop.app.data.model.AuthResponse
+import com.zappshop.app.data.model.User
+import javax.inject.Inject
+
+class AuthRepository @Inject constructor(
+    private val session: SessionManager
+) {
+    suspend fun login(email: String, password: String): Result<AuthResponse> {
+        val fakeUser = User(1, "Usuário Teste", email)
+        val fakeResponse = AuthResponse("fake-token-123", fakeUser)
+        session.saveSession(fakeResponse.token, fakeUser.name, fakeUser.email)
+        return Result.success(fakeResponse)
+    }
+
+    suspend fun register(name: String, email: String, password: String): Result<AuthResponse> {
+        val fakeUser = User(1, name, email)
+        val fakeResponse = AuthResponse("fake-token-123", fakeUser)
+        session.saveSession(fakeResponse.token, fakeUser.name, fakeUser.email)
+        return Result.success(fakeResponse)
+    }
+
+    suspend fun logout() = session.clearSession()
+    fun getToken() = session.token
+    fun getUserName() = session.userName
 }
