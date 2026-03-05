@@ -400,25 +400,25 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_zappshop_app_ui_screens_product_ProductDetailViewModel = "com.zappshop.app.ui.screens.product.ProductDetailViewModel";
-
-      static String com_zappshop_app_ui_screens_auth_AuthViewModel = "com.zappshop.app.ui.screens.auth.AuthViewModel";
+      static String com_zappshop_app_ui_screens_home_HomeViewModel = "com.zappshop.app.ui.screens.home.HomeViewModel";
 
       static String com_zappshop_app_ui_screens_cart_CartViewModel = "com.zappshop.app.ui.screens.cart.CartViewModel";
 
-      static String com_zappshop_app_ui_screens_home_HomeViewModel = "com.zappshop.app.ui.screens.home.HomeViewModel";
+      static String com_zappshop_app_ui_screens_auth_AuthViewModel = "com.zappshop.app.ui.screens.auth.AuthViewModel";
+
+      static String com_zappshop_app_ui_screens_product_ProductDetailViewModel = "com.zappshop.app.ui.screens.product.ProductDetailViewModel";
 
       @KeepFieldType
-      ProductDetailViewModel com_zappshop_app_ui_screens_product_ProductDetailViewModel2;
-
-      @KeepFieldType
-      AuthViewModel com_zappshop_app_ui_screens_auth_AuthViewModel2;
+      HomeViewModel com_zappshop_app_ui_screens_home_HomeViewModel2;
 
       @KeepFieldType
       CartViewModel com_zappshop_app_ui_screens_cart_CartViewModel2;
 
       @KeepFieldType
-      HomeViewModel com_zappshop_app_ui_screens_home_HomeViewModel2;
+      AuthViewModel com_zappshop_app_ui_screens_auth_AuthViewModel2;
+
+      @KeepFieldType
+      ProductDetailViewModel com_zappshop_app_ui_screens_product_ProductDetailViewModel2;
     }
   }
 
@@ -476,25 +476,25 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_zappshop_app_ui_screens_home_HomeViewModel = "com.zappshop.app.ui.screens.home.HomeViewModel";
-
-      static String com_zappshop_app_ui_screens_cart_CartViewModel = "com.zappshop.app.ui.screens.cart.CartViewModel";
-
       static String com_zappshop_app_ui_screens_product_ProductDetailViewModel = "com.zappshop.app.ui.screens.product.ProductDetailViewModel";
+
+      static String com_zappshop_app_ui_screens_home_HomeViewModel = "com.zappshop.app.ui.screens.home.HomeViewModel";
 
       static String com_zappshop_app_ui_screens_auth_AuthViewModel = "com.zappshop.app.ui.screens.auth.AuthViewModel";
 
-      @KeepFieldType
-      HomeViewModel com_zappshop_app_ui_screens_home_HomeViewModel2;
-
-      @KeepFieldType
-      CartViewModel com_zappshop_app_ui_screens_cart_CartViewModel2;
+      static String com_zappshop_app_ui_screens_cart_CartViewModel = "com.zappshop.app.ui.screens.cart.CartViewModel";
 
       @KeepFieldType
       ProductDetailViewModel com_zappshop_app_ui_screens_product_ProductDetailViewModel2;
 
       @KeepFieldType
+      HomeViewModel com_zappshop_app_ui_screens_home_HomeViewModel2;
+
+      @KeepFieldType
       AuthViewModel com_zappshop_app_ui_screens_auth_AuthViewModel2;
+
+      @KeepFieldType
+      CartViewModel com_zappshop_app_ui_screens_cart_CartViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
