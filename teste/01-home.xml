@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen id="01" name="Home">
+
+  <statusBar>
+    <time>9:41</time>
+    <icons>
+      <signal>▲▲▲</signal>
+      <battery>●</battery>
+    </icons>
+  </statusBar>
+
+  <header>
+    <logo>
+      <text>Minha<highlight>Loja</highlight></text>
+    </logo>
+    <greeting>Bom dia, visitante! 👋</greeting>
+    <notificationButton icon="🔔" />
+  </header>
+
+  <searchBar placeholder="Buscar produtos..." />
+
+  <banner>
+    <badge>OFERTA DA SEMANA</badge>
+    <title>Até 50% de desconto</title>
+    <button>Ver ofertas →</button>
+    <icon>🛍</icon>
+  </banner>
+
+  <categories>
+    <category active="true">Tudo</category>
+    <category>Eletrônico</category>
+    <category>Moda</category>
+    <category>Casa</category>
+  </categories>
+
+  <section title="Em destaque" linkText="Ver todos">
+    <products>
+      <product>
+        <icon>📱</icon>
+        <name>Smartphone Pro</name>
+        <originalPrice>R$ 2.499</originalPrice>
+        <price>R$ 1.999</price>
+      </product>
+      <product>
+        <icon>🎧</icon>
+        <name>Fone Wireless</name>
+        <originalPrice>R$ 499</originalPrice>
+        <price>R$ 299</price>
+      </product>
+      <product>
+        <icon>⌚</icon>
+        <name>Smartwatch</name>
+        <originalPrice>R$ 899</originalPrice>
+        <price>R$ 649</price>
+      </product>
+    </products>
+  </section>
+
+  <bottomNav>
+    <tab icon="🏠" active="true" />
+    <tab icon="🔍" />
+    <tab icon="🛒" />
+    <tab icon="👤" />
+  </bottomNav>
+
+</screen>

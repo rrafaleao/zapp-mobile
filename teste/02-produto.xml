@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen id="02" name="Produto">
+
+  <statusBar>
+    <time>9:41</time>
+    <icons>
+      <signal>▲▲▲</signal>
+      <battery>●</battery>
+    </icons>
+  </statusBar>
+
+  <header>
+    <backButton />
+    <title>Detalhes</title>
+    <favoriteButton />
+  </header>
+
+  <productGallery>
+    <image icon="🎧" background="#EEF2FF" />
+    <badge type="discount">-40%</badge>
+    <dots total="3" active="0" />
+  </productGallery>
+
+  <productInfo>
+    <category>ELETRÔNICOS</category>
+    <name>Fone Wireless Pro X</name>
+    <price currency="BRL">299.90</price>
+
+    <rating>
+      <stars>★★★★★</stars>
+      <score>4.8</score>
+      <reviews>128</reviews>
+    </rating>
+
+    <colorSelector label="Cor">
+      <color value="#222222" selected="true" />
+      <color value="#4B8BF4" />
+      <color value="#DDDDDD" />
+      <color value="#EF4444" />
+    </colorSelector>
+
+    <description>
+      Fone de ouvido Bluetooth com cancelamento ativo de ruído, bateria de 30h
+      e qualidade de som premium. Perfeito para o dia a dia.
+    </description>
+
+    <quantitySelector>
+      <decrease />
+      <quantity>1</quantity>
+      <increase />
+      <stockInfo>Em estoque: 32</stockInfo>
+    </quantitySelector>
+  </productInfo>
+
+  <actions>
+    <button type="secondary" icon="🛒">Carrinho</button>
+    <button type="primary">Comprar Agora</button>
+  </actions>
+
+</screen>

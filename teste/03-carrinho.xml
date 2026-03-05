@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen id="03" name="Carrinho">
+
+  <statusBar>
+    <time>9:41</time>
+    <icons>
+      <signal>▲▲▲</signal>
+      <battery>●</battery>
+    </icons>
+  </statusBar>
+
+  <header>
+    <title>Meu Carrinho</title>
+    <badge>3 itens</badge>
+  </header>
+
+  <cartItems>
+    <item>
+      <icon>🎧</icon>
+      <n>Fone Wireless Pro X</n>
+      <variant>Cor: Preto</variant>
+      <price currency="BRL">299.90</price>
+      <quantity>1</quantity>
+    </item>
+    <item>
+      <icon>📱</icon>
+      <n>Smartphone Pro Max</n>
+      <variant>128GB · Azul</variant>
+      <price currency="BRL">1999.00</price>
+      <quantity>1</quantity>
+    </item>
+    <item>
+      <icon>⌚</icon>
+      <n>Smartwatch Elite</n>
+      <variant>Tamanho: 44mm</variant>
+      <price currency="BRL">649.00</price>
+      <quantity>2</quantity>
+    </item>
+  </cartItems>
+
+  <coupon>
+    <placeholder>Adicionar cupom de desconto</placeholder>
+    <button>Aplicar</button>
+  </coupon>
+
+  <orderSummary>
+    <subtotal currency="BRL">3597.90</subtotal>
+    <shipping>Grátis</shipping>
+    <discount currency="BRL">-150.00</discount>
+    <total currency="BRL">3447.90</total>
+  </orderSummary>
+
+  <actions>
+    <button type="primary">Finalizar Compra</button>
+  </actions>
+
+</screen>

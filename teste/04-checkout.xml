@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen id="04" name="Checkout">
+
+  <statusBar>
+    <time>9:41</time>
+    <icons>
+      <signal>▲▲▲</signal>
+      <battery>●</battery>
+    </icons>
+  </statusBar>
+
+  <header>
+    <backButton />
+    <title>Checkout</title>
+  </header>
+
+  <progressSteps>
+    <step status="completed">Carrinho</step>
+    <step status="active">Pagamento</step>
+    <step status="pending">Confirmação</step>
+  </progressSteps>
+
+  <deliveryAddress label="Endereço de entrega" icon="📦">
+    <recipient>João Silva</recipient>
+    <street>Rua das Flores, 123 · Apto 45</street>
+    <city>São Paulo</city>
+    <state>SP</state>
+    <zipCode>01310-100</zipCode>
+    <editLink>Alterar endereço</editLink>
+  </deliveryAddress>
+
+  <paymentMethods label="Forma de pagamento" icon="💳">
+    <method selected="true">
+      <icon>💳</icon>
+      <title>Cartão de crédito</title>
+      <detail>**** **** **** 4521</detail>
+    </method>
+    <method selected="false">
+      <icon>📱</icon>
+      <title>Pix</title>
+      <detail>Pagamento instantâneo</detail>
+    </method>
+    <method selected="false">
+      <icon>🔖</icon>
+      <title>Boleto Bancário</title>
+      <detail>Vence em 3 dias úteis</detail>
+    </method>
+  </paymentMethods>
+
+  <orderSummary>
+    <item>
+      <icon>🎧</icon>
+      <n>Fone Wireless Pro X</n>
+      <quantity>1</quantity>
+      <price currency="BRL">299.90</price>
+    </item>
+    <subtotal currency="BRL">3597.90</subtotal>
+    <shipping>Grátis</shipping>
+  </orderSummary>
+
+  <actions>
+    <button type="primary" icon="🔒">Confirmar Pagamento</button>
+  </actions>
+
+</screen>
