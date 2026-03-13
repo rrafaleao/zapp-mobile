@@ -22,9 +22,12 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
     ) {
         Column {
             AsyncImage(
-                model = product.imageUrl,
+                // CORREÇÃO: Tratando nulidade da URL da imagem
+                model = product.imageUrl ?: "",
                 contentDescription = product.name,
-                modifier = Modifier.fillMaxWidth().height(160.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp),
                 contentScale = ContentScale.Crop
             )
             Column(modifier = Modifier.padding(12.dp)) {
@@ -41,8 +44,9 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.primary
                 )
+                // CORREÇÃO: Tratando nulidade do nome da loja para evitar erro de tipo
                 Text(
-                    text = product.storeName,
+                    text = product.storeName ?: "Loja Parceira",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

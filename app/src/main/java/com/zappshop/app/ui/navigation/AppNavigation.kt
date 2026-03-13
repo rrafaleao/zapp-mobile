@@ -25,7 +25,8 @@ sealed class Screen(val route: String) {
     object Register : Screen("register")
     object Home : Screen("home")
     object ProductDetail : Screen("product/{productId}") {
-        fun createRoute(id: Int) = "product/$id"
+        // CORREÇÃO: Alterado de Int para String para aceitar o UUID do banco
+        fun createRoute(id: String) = "product/$id"
     }
     object Cart : Screen("cart")
     object Profile : Screen("profile")
@@ -52,26 +53,35 @@ fun AppNavigation() {
         ) {
             composable(Screen.Login.route) {
                 LoginScreen(
-                    onLoginSuccess = { navController.navigate(Screen.Home.route) { popUpTo(0) } },
+                    onLoginSuccess = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(0)
+                        }
+                    },
                     onGoToRegister = { navController.navigate(Screen.Register.route) }
                 )
             }
             composable(Screen.Register.route) {
                 RegisterScreen(
-                    onRegisterSuccess = { navController.navigate(Screen.Home.route) { popUpTo(0) } },
+                    onRegisterSuccess = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(0)
+                        }
+                    },
                     onGoToLogin = { navController.popBackStack() }
                 )
             }
             composable(Screen.Home.route) {
                 HomeScreen(onProductClick = { id ->
+                    // CORREÇÃO: Agora o 'id' que vem da HomeScreen é String
                     navController.navigate(Screen.ProductDetail.createRoute(id))
                 })
             }
             composable(
                 route = Screen.ProductDetail.route,
-                arguments = listOf(navArgument("productId") { type = NavType.IntType })
+                arguments = listOf(navArgument("productId") { type = NavType.StringType })
             ) { backStackEntry ->
-                val productId = backStackEntry.arguments?.getInt("productId") ?: return@composable
+                val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
                 ProductDetailScreen(
                     productId = productId,
                     onBack = { navController.popBackStack() },
@@ -79,7 +89,7 @@ fun AppNavigation() {
                 )
             }
             composable(Screen.Cart.route) {
-                CartScreen(onBack = { navController.popBackStack() })
+                CartScreen(onNavigateBack = { navController.popBackStack() })
             }
         }
     }

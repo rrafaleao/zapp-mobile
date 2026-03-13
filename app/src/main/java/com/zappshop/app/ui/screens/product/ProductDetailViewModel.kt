@@ -27,20 +27,23 @@ class ProductDetailViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProductDetailUiState())
     val uiState: StateFlow<ProductDetailUiState> = _uiState
 
-    fun loadProduct(id: Int) {
+    fun loadProduct(id: String) {
         viewModelScope.launch {
             _uiState.value = ProductDetailUiState(isLoading = true)
+
             val result = productRepository.getProductById(id)
-            _uiState.value = if (result.isSuccess)
+
+            _uiState.value = if (result.isSuccess) {
                 ProductDetailUiState(product = result.getOrNull())
-            else
+            } else {
                 ProductDetailUiState(error = result.exceptionOrNull()?.message)
+            }
         }
     }
 
     fun addToCart() {
-        _uiState.value.product?.let {
-            cartRepository.addItem(it)
+        _uiState.value.product?.let { product ->
+            cartRepository.addItem(product)
             _uiState.value = _uiState.value.copy(addedToCart = true)
         }
     }

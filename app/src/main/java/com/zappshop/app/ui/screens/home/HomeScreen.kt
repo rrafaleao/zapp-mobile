@@ -14,6 +14,8 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,7 +32,8 @@ import com.zappshop.app.ui.components.ProductCard
 
 @Composable
 fun HomeScreen(
-    onProductClick: (Int) -> Unit,
+    // CORREÇÃO: Alterado de Int para String para suportar o UUID do banco
+    onProductClick: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()

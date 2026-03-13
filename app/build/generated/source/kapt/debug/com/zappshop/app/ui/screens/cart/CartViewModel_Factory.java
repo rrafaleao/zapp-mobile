@@ -23,22 +23,22 @@ import javax.inject.Provider;
     "cast"
 })
 public final class CartViewModel_Factory implements Factory<CartViewModel> {
-  private final Provider<CartRepository> cartRepositoryProvider;
+  private final Provider<CartRepository> repositoryProvider;
 
-  public CartViewModel_Factory(Provider<CartRepository> cartRepositoryProvider) {
-    this.cartRepositoryProvider = cartRepositoryProvider;
+  public CartViewModel_Factory(Provider<CartRepository> repositoryProvider) {
+    this.repositoryProvider = repositoryProvider;
   }
 
   @Override
   public CartViewModel get() {
-    return newInstance(cartRepositoryProvider.get());
+    return newInstance(repositoryProvider.get());
   }
 
-  public static CartViewModel_Factory create(Provider<CartRepository> cartRepositoryProvider) {
-    return new CartViewModel_Factory(cartRepositoryProvider);
+  public static CartViewModel_Factory create(Provider<CartRepository> repositoryProvider) {
+    return new CartViewModel_Factory(repositoryProvider);
   }
 
-  public static CartViewModel newInstance(CartRepository cartRepository) {
-    return new CartViewModel(cartRepository);
+  public static CartViewModel newInstance(CartRepository repository) {
+    return new CartViewModel(repository);
   }
 }

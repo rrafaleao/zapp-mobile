@@ -7,11 +7,24 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CartViewModel @Inject constructor(
-    private val cartRepository: CartRepository
+    private val repository: CartRepository
 ) : ViewModel() {
-    val items = cartRepository.items
-    fun getTotal() = cartRepository.getTotal()
-    fun removeItem(productId: Int) = cartRepository.removeItem(productId)
-    fun updateQuantity(productId: Int, quantity: Int) = cartRepository.updateQuantity(productId, quantity)
-    fun clearCart() = cartRepository.clearCart()
+
+    val uiState = repository.items
+
+    fun getTotalPrice(): Double {
+        return repository.getTotal()
+    }
+
+    fun updateQuantity(productId: String, quantity: Int) { // STRING
+        repository.updateQuantity(productId, quantity)
+    }
+
+    fun removeItem(productId: String) { // STRING
+        repository.removeItem(productId)
+    }
+
+    fun checkout() {
+        repository.clearCart()
+    }
 }

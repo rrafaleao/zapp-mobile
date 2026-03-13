@@ -2,6 +2,7 @@ package com.zappshop.app.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.zappshop.app.data.model.Category
 import com.zappshop.app.data.model.Product
 import com.zappshop.app.data.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,6 +13,8 @@ import javax.inject.Inject
 
 data class HomeUiState(
     val products: List<Product> = emptyList(),
+    val featuredProducts: List<Product> = emptyList(),
+    val categories: List<Category> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 )
@@ -24,23 +27,64 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState
 
-    var searchQuery = MutableStateFlow("")
+    val searchQuery = MutableStateFlow("")
+    val selectedCategory = MutableStateFlow<String?>(null)
+    val selectedSort = MutableStateFlow<String?>(null)
 
-    init { loadProducts() }
+    init {
+        loadAll()
+    }
 
-    fun loadProducts(search: String? = null) {
+    private fun loadAll() {
         viewModelScope.launch {
+
+            _uiState.value = _uiState.value.copy(isLoading = true)
+
+            val productsResult = repository.getProducts()
+            val featuredResult = repository.getFeaturedProducts()
+            val categoriesResult = repository.getCategories()
+
+            _uiState.value = HomeUiState(
+                products = productsResult.getOrDefault(emptyList()),
+                featuredProducts = featuredResult.getOrDefault(emptyList()),
+                categories = categoriesResult.getOrDefault(emptyList()),
+                isLoading = false,
+                error = productsResult.exceptionOrNull()?.message
+            )
+        }
+    }
+
+    fun loadProducts() {
+        viewModelScope.launch {
+
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-            val result = repository.getProducts(search)
-            _uiState.value = if (result.isSuccess)
-                HomeUiState(products = result.getOrDefault(emptyList()))
-            else
-                HomeUiState(error = result.exceptionOrNull()?.message)
+
+            val result = repository.getProducts(
+                search = searchQuery.value.ifBlank { null },
+                category = selectedCategory.value,
+                sortBy = selectedSort.value
+            )
+
+            _uiState.value = _uiState.value.copy(
+                products = result.getOrDefault(emptyList()),
+                isLoading = false,
+                error = result.exceptionOrNull()?.message
+            )
         }
     }
 
     fun onSearchChange(query: String) {
         searchQuery.value = query
-        loadProducts(query.ifBlank { null })
+        loadProducts()
+    }
+
+    fun onCategorySelected(category: String?) {
+        selectedCategory.value = category
+        loadProducts()
+    }
+
+    fun onSortSelected(sort: String?) {
+        selectedSort.value = sort
+        loadProducts()
     }
 }
