@@ -5,8 +5,7 @@ import com.zappshop.app.BuildConfig
 import com.zappshop.app.data.local.SessionManager
 import com.zappshop.app.data.model.*
 import com.zappshop.app.data.remote.ApiService
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,13 +16,10 @@ class AuthRepository @Inject constructor(
 ) {
     private val storeSlug = BuildConfig.STORE_SLUG
 
-    private val _token = MutableStateFlow<String?>(null)
-    val token: StateFlow<String?> = _token
+    val token: Flow<String?> = session.token
+    val userName: Flow<String?> = session.userName
 
-    private val _userName = MutableStateFlow<String?>(null)
-    val userName: StateFlow<String?> = _userName
-
-    suspend fun login(email: String, password: String): Result<AuthResponse> {
+    suspend fun login(email: String, password: String): Result<AuthData> {
         return try {
             val response = api.login(
                 slug = storeSlug,
@@ -32,26 +28,21 @@ class AuthRepository @Inject constructor(
 
             if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
                 val payload = response.body()!!.data!!
-                val user = User(
-                    id = payload.customerId,
+                session.saveSession(
+                    token = payload.customerId,
                     name = payload.customerName,
                     email = payload.customerEmail
                 )
-
-                val authResponse = AuthResponse(token = payload.customerId, user = user)
-                session.saveSession(authResponse.token, user.name, user.email)
-                _token.value = authResponse.token
-                _userName.value = user.name
-                Result.success(authResponse)
+                Result.success(payload)
             } else {
-                Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error)))
+                Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error ?: "Falha no login")))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    suspend fun register(name: String, email: String, phone: String?, password: String): Result<AuthResponse> {
+    suspend fun register(name: String, email: String, phone: String?, password: String): Result<AuthData> {
         return try {
             val response = api.register(
                 slug = storeSlug,
@@ -66,19 +57,14 @@ class AuthRepository @Inject constructor(
 
             if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
                 val payload = response.body()!!.data!!
-                val user = User(
-                    id = payload.customerId,
+                session.saveSession(
+                    token = payload.customerId,
                     name = payload.customerName,
                     email = payload.customerEmail
                 )
-
-                val authResponse = AuthResponse(token = payload.customerId, user = user)
-                session.saveSession(authResponse.token, user.name, user.email)
-                _token.value = authResponse.token
-                _userName.value = user.name
-                Result.success(authResponse)
+                Result.success(payload)
             } else {
-                Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error)))
+                Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error ?: "Erro no cadastro")))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -87,34 +73,24 @@ class AuthRepository @Inject constructor(
 
     suspend fun logout() {
         session.clearSession()
-        _token.value = null
-        _userName.value = null
     }
 
-    fun getToken() = session.token
-    fun getUserName() = session.userName
-
-    private fun parseApiError(errorBody: String?, fallbackError: String?): String {
+    private fun parseApiError(errorBody: String?, fallback: String): String {
         if (!errorBody.isNullOrBlank()) {
             try {
                 val root = JsonParser.parseString(errorBody).asJsonObject
-
                 if (root.has("error") && !root.get("error").isJsonNull) {
                     return root.get("error").asString
                 }
-
                 if (root.has("errors") && root.get("errors").isJsonObject) {
-                    val errorsObj = root.getAsJsonObject("errors")
-                    val firstError = errorsObj.entrySet().firstOrNull()?.value
-                    if (firstError != null && !firstError.isJsonNull) {
-                        return firstError.asString
+                    val first = root.getAsJsonObject("errors").entrySet().firstOrNull()?.value
+                    if (first != null && !first.isJsonNull) {
+                        return first.asString
                     }
                 }
             } catch (_: Exception) {
-                // Keep fallback below.
             }
         }
-
-        return fallbackError ?: "Erro ao autenticar"
+        return fallback
     }
 }
