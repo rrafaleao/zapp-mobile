@@ -20,9 +20,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun login(email: String, password: String): Result<AuthData> {
         return try {
-            val response = api.login(
-                slug = storeSlug,
-                request = LoginRequest(email = email.trim(), password = password)
+            val response = api.login(request = LoginRequest(email = email.trim(), password = password)
             )
 
             if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
@@ -48,9 +46,7 @@ class AuthRepository @Inject constructor(
 
     suspend fun register(name: String, email: String, phone: String?, password: String): Result<AuthData> {
         return try {
-            val response = api.register(
-                slug = storeSlug,
-                request = RegisterRequest(
+            val response = api.register(request = RegisterRequest(
                     fullName = name.trim(),
                     email = email.trim(),
                     phone = phone,
