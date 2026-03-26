@@ -1,9 +1,12 @@
 package com.zappshop.app.data.remote
 
 import okhttp3.OkHttpClient
+import okhttp3.JavaNetCookieJar
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.CookieManager
+import java.net.CookiePolicy
 
 object RetrofitInstance {
 
@@ -13,7 +16,12 @@ object RetrofitInstance {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
+    private val cookieManager = CookieManager().apply {
+        setCookiePolicy(CookiePolicy.ACCEPT_ALL)
+    }
+
     private val client = OkHttpClient.Builder()
+        .cookieJar(JavaNetCookieJar(cookieManager))
         .addInterceptor(loggingInterceptor)
         .build()
 

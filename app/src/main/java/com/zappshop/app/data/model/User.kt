@@ -1,9 +1,7 @@
 package com.zappshop.app.data.model
 
-import com.google.gson.annotations.SerializedName
-
 data class User(
-    val id: Int,
+    val id: String,
     val name: String,
     val email: String
 )
