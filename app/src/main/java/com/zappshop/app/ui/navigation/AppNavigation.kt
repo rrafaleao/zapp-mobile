@@ -32,7 +32,7 @@ sealed class Screen(val route: String) {
 fun AppNavigation() {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = hiltViewModel()
-    val token by authViewModel.token.collectAsState()
+    val token by authViewModel.token.collectAsState(initial = null)
 
     NavHost(
         navController = navController,
