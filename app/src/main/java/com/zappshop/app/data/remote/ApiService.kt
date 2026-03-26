@@ -21,14 +21,16 @@ interface ApiService {
     @GET("api/zappshop/products")
     suspend fun getProducts(
         @Query("search") search: String? = null,
+        @Query("category") category: String? = null,
+        @Query("sort_by") sortBy: String? = null,
         @Query("page") page: Int = 1
-    ): Response<ZappShopResponse>
+    ): Response<PaginatedResponse<Product>>
 
     @GET("api/zappshop/product/{id}")
     suspend fun getProductById(
         @Path("id") id: String
-    ): Response<AuthResponse>
+    ): Response<ApiResponse<Product>>
 
     @GET("api/zappshop/categories")
-    suspend fun getCategories(): Response<List<Category>>
+    suspend fun getCategories(): Response<ApiResponse<List<Category>>>
 }

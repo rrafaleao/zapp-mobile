@@ -11,7 +11,7 @@ data class LoginRequest(
 data class RegisterRequest(
     @SerializedName("full_name") val fullName: String,
     val email: String,
-    val phone: String,
+    val phone: String? = null,
     val password: String,
     @SerializedName("confirm_password") val confirmPassword: String
 )
@@ -27,13 +27,8 @@ data class AuthResponse(
 data class AuthData(
     @SerializedName("customer_id") val customerId: String,
     @SerializedName("customer_name") val customerName: String,
-    @SerializedName("customer_email") val customerEmail: String
-)
-
-data class ZappShopResponse(
-    val success: Boolean,
-    val data: List<Product> = emptyList(),
-    val error: String? = null
+    @SerializedName("customer_email") val customerEmail: String,
+    @SerializedName("redirect_url") val redirectUrl: String? = null
 )
 
 // Estado da UI (Para os ViewModels)
@@ -50,12 +45,15 @@ data class AuthUiState(
 // Modelos Base
 data class Product(
     val id: String,
-    val name: String,
+    @SerializedName("title") val name: String,
     val price: Double,
     val description: String?,
     val image: String?, // Mantido para compatibilidade
     @SerializedName("image_url") val imageUrl: String? = null, // Adicionado para ProductCard/Detail
+    @SerializedName("store_id") val storeId: String? = null,
     @SerializedName("store_name") val storeName: String? = "ZappShop", // Adicionado
+    @SerializedName("store_logo") val storeLogo: String? = null,
+    @SerializedName("category_name") val categoryName: String? = null,
     val promotion: Promotion? = null // Adicionado para ProductDetail
 )
 
@@ -68,6 +66,7 @@ data class Promotion(
 )
 
 data class Category(
-    val id: String,
-    val name: String
+    val id: String? = null,
+    val name: String,
+    @SerializedName("product_count") val productCount: Int? = null
 )
