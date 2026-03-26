@@ -67,7 +67,7 @@ fun AppNavigation() {
             CartScreen(onNavigateBack = { navController.popBackStack() })
         }
         composable(Screen.Profile.route) {
-            androidx.compose.material3.Text("Perfil em desenvolvimento")
+            Text("Perfil em desenvolvimento")
         }
     }
 }

@@ -2,7 +2,7 @@ package com.zappshop.app.data.model
 
 import com.google.gson.annotations.SerializedName
 
-// Requisições
+// ========== REQUISIÇÕES ==========
 data class LoginRequest(
     val email: String,
     val password: String
@@ -16,7 +16,7 @@ data class RegisterRequest(
     @SerializedName("confirm_password") val confirmPassword: String
 )
 
-// Respostas da API
+// ========== RESPOSTAS DA API ==========
 data class AuthResponse(
     val success: Boolean,
     val message: String? = null,
@@ -36,7 +36,7 @@ data class ZappShopResponse(
     val error: String? = null
 )
 
-// Estado da UI (Para os ViewModels)
+// ========== ESTADO DA UI ==========
 data class AuthUiState(
     val email: String = "",
     val password: String = "",
@@ -47,24 +47,23 @@ data class AuthUiState(
     val error: String? = null
 )
 
-// Modelos Base
+// ========== MODELOS DE PRODUTO E CATEGORIA ==========
 data class Product(
     val id: String,
     val name: String,
     val price: Double,
-    val description: String?,
-    val image: String?, // Mantido para compatibilidade
-    @SerializedName("image_url") val imageUrl: String? = null, // Adicionado para ProductCard/Detail
-    @SerializedName("store_name") val storeName: String? = "ZappShop", // Adicionado
-    val promotion: Promotion? = null // Adicionado para ProductDetail
+    val description: String? = null,
+    val image: String? = null,
+    @SerializedName("image_url") val imageUrl: String? = null,
+    @SerializedName("store_name") val storeName: String? = "ZappShop",
+    val promotion: Promotion? = null
 )
 
-// Procure a data class Promotion dentro do seu arquivo AuthModels.kt e substitua por esta:
 data class Promotion(
     @SerializedName("original_price") val originalPrice: Double,
-    @SerializedName("promo_price") val promoPrice: Double, // Adicionado para a tela de detalhes
-    @SerializedName("discount_percent") val discountPercent: Int, // Adicionado para a tela de detalhes
-    val name: String? = "Oferta Especial" // Adicionado para a tela de detalhes
+    @SerializedName("promo_price") val promoPrice: Double,
+    @SerializedName("discount_percent") val discountPercent: Int,
+    val name: String? = "Oferta Especial"
 )
 
 data class Category(
