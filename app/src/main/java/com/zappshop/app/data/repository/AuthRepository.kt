@@ -3,18 +3,25 @@ package com.zappshop.app.data.repository
 import com.google.gson.JsonParser
 import com.zappshop.app.BuildConfig
 import com.zappshop.app.data.local.SessionManager
-import com.zappshop.app.data.model.AuthResponse
-import com.zappshop.app.data.model.LoginRequest
-import com.zappshop.app.data.model.RegisterRequest
-import com.zappshop.app.data.model.User
+import com.zappshop.app.data.model.*
 import com.zappshop.app.data.remote.ApiService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class AuthRepository @Inject constructor(
     private val session: SessionManager,
     private val api: ApiService
 ) {
     private val storeSlug = BuildConfig.STORE_SLUG
+
+    private val _token = MutableStateFlow<String?>(null)
+    val token: StateFlow<String?> = _token
+
+    private val _userName = MutableStateFlow<String?>(null)
+    val userName: StateFlow<String?> = _userName
 
     suspend fun login(email: String, password: String): Result<AuthResponse> {
         return try {
@@ -33,6 +40,8 @@ class AuthRepository @Inject constructor(
 
                 val authResponse = AuthResponse(token = payload.customerId, user = user)
                 session.saveSession(authResponse.token, user.name, user.email)
+                _token.value = authResponse.token
+                _userName.value = user.name
                 Result.success(authResponse)
             } else {
                 Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error)))
@@ -42,14 +51,14 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun register(name: String, email: String, password: String): Result<AuthResponse> {
+    suspend fun register(name: String, email: String, phone: String?, password: String): Result<AuthResponse> {
         return try {
             val response = api.register(
                 slug = storeSlug,
                 request = RegisterRequest(
                     fullName = name.trim(),
                     email = email.trim(),
-                    phone = null,
+                    phone = phone,
                     password = password,
                     confirmPassword = password
                 )
@@ -65,6 +74,8 @@ class AuthRepository @Inject constructor(
 
                 val authResponse = AuthResponse(token = payload.customerId, user = user)
                 session.saveSession(authResponse.token, user.name, user.email)
+                _token.value = authResponse.token
+                _userName.value = user.name
                 Result.success(authResponse)
             } else {
                 Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error)))
@@ -74,7 +85,12 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun logout() = session.clearSession()
+    suspend fun logout() {
+        session.clearSession()
+        _token.value = null
+        _userName.value = null
+    }
+
     fun getToken() = session.token
     fun getUserName() = session.userName
 

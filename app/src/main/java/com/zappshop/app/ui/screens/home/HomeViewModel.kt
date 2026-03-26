@@ -2,19 +2,15 @@ package com.zappshop.app.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.zappshop.app.data.model.Category
 import com.zappshop.app.data.model.Product
 import com.zappshop.app.data.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HomeUiState(
     val products: List<Product> = emptyList(),
-    val featuredProducts: List<Product> = emptyList(),
-    val categories: List<Category> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 )
@@ -25,66 +21,36 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
-    val uiState: StateFlow<HomeUiState> = _uiState
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    val searchQuery = MutableStateFlow("")
-    val selectedCategory = MutableStateFlow<String?>(null)
-    val selectedSort = MutableStateFlow<String?>(null)
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     init {
-        loadAll()
-    }
-
-    private fun loadAll() {
-        viewModelScope.launch {
-
-            _uiState.value = _uiState.value.copy(isLoading = true)
-
-            val productsResult = repository.getProducts()
-            val featuredResult = repository.getFeaturedProducts()
-            val categoriesResult = repository.getCategories()
-
-            _uiState.value = HomeUiState(
-                products = productsResult.getOrDefault(emptyList()),
-                featuredProducts = featuredResult.getOrDefault(emptyList()),
-                categories = categoriesResult.getOrDefault(emptyList()),
-                isLoading = false,
-                error = productsResult.exceptionOrNull()?.message
-            )
-        }
-    }
-
-    fun loadProducts() {
-        viewModelScope.launch {
-
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-
-            val result = repository.getProducts(
-                search = searchQuery.value.ifBlank { null },
-                category = selectedCategory.value,
-                sortBy = selectedSort.value
-            )
-
-            _uiState.value = _uiState.value.copy(
-                products = result.getOrDefault(emptyList()),
-                isLoading = false,
-                error = result.exceptionOrNull()?.message
-            )
-        }
+        loadProducts()
     }
 
     fun onSearchChange(query: String) {
-        searchQuery.value = query
-        loadProducts()
+        _searchQuery.value = query
+        loadProducts(query)
     }
 
-    fun onCategorySelected(category: String?) {
-        selectedCategory.value = category
-        loadProducts()
-    }
+    fun loadProducts(search: String? = null) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
 
-    fun onSortSelected(sort: String?) {
-        selectedSort.value = sort
-        loadProducts()
+            // CORREÇÃO: Usando apenas os parâmetros que existem no Repository (search, page)
+            repository.getProducts(search = search, page = 1)
+                .onSuccess { products ->
+                    _uiState.update {
+                        it.copy(products = products, isLoading = false, error = null)
+                    }
+                }
+                .onFailure { exception ->
+                    _uiState.update {
+                        it.copy(error = exception.message, isLoading = false)
+                    }
+                }
+        }
     }
 }

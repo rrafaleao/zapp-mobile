@@ -1,14 +1,12 @@
 package com.zappshop.app.data.repository;
 
-import com.zappshop.app.data.local.SessionManager;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
 import dagger.internal.QualifierMetadata;
 import dagger.internal.ScopeMetadata;
 import javax.annotation.processing.Generated;
-import javax.inject.Provider;
 
-@ScopeMetadata
+@ScopeMetadata("javax.inject.Singleton")
 @QualifierMetadata
 @DaggerGenerated
 @Generated(
@@ -23,22 +21,20 @@ import javax.inject.Provider;
     "cast"
 })
 public final class AuthRepository_Factory implements Factory<AuthRepository> {
-  private final Provider<SessionManager> sessionProvider;
-
-  public AuthRepository_Factory(Provider<SessionManager> sessionProvider) {
-    this.sessionProvider = sessionProvider;
-  }
-
   @Override
   public AuthRepository get() {
-    return newInstance(sessionProvider.get());
+    return newInstance();
   }
 
-  public static AuthRepository_Factory create(Provider<SessionManager> sessionProvider) {
-    return new AuthRepository_Factory(sessionProvider);
+  public static AuthRepository_Factory create() {
+    return InstanceHolder.INSTANCE;
   }
 
-  public static AuthRepository newInstance(SessionManager session) {
-    return new AuthRepository(session);
+  public static AuthRepository newInstance() {
+    return new AuthRepository();
+  }
+
+  private static final class InstanceHolder {
+    private static final AuthRepository_Factory INSTANCE = new AuthRepository_Factory();
   }
 }

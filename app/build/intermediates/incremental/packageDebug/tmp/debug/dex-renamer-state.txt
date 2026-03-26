@@ -1,4 +1,4 @@
-#Fri Mar 13 20:17:32 BRT 2026
+#Thu Mar 26 19:36:36 BRT 2026
 base.0=C\:\\Users\\RAFAELMATIELLIGOTZ\\StudioProjects\\zapp-mobile\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes.dex
 base.1=C\:\\Users\\RAFAELMATIELLIGOTZ\\StudioProjects\\zapp-mobile\\app\\build\\intermediates\\dex\\debug\\mergeProjectDexDebug\\0\\classes.dex
 base.10=C\:\\Users\\RAFAELMATIELLIGOTZ\\StudioProjects\\zapp-mobile\\app\\build\\intermediates\\dex\\debug\\mergeExtDexDebug\\classes2.dex

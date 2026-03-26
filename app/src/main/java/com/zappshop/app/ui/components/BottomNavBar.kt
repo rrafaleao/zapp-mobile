@@ -4,39 +4,53 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.zappshop.app.ui.navigation.Screen
 
 @Composable
 fun BottomNavBar(navController: NavController) {
+    // Lista das telas que aparecerão na barra inferior
+    val items = listOf(
+        Screen.Home,
+        Screen.Cart,
+        Screen.Profile
+    )
+
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination
 
     NavigationBar {
-        NavigationBarItem(
-            selected = currentRoute == Screen.Home.route,
-            onClick = { navController.navigate(Screen.Home.route) { launchSingleTop = true } },
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            label = { Text("Home") }
-        )
-        NavigationBarItem(
-            selected = currentRoute == Screen.Cart.route,
-            onClick = { navController.navigate(Screen.Cart.route) { launchSingleTop = true } },
-            icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Carrinho") },
-            label = { Text("Carrinho") }
-        )
-        NavigationBarItem(
-            selected = currentRoute == Screen.Profile.route,
-            onClick = { navController.navigate(Screen.Profile.route) { launchSingleTop = true } },
-            icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
-            label = { Text("Perfil") }
-        )
+        items.forEach { screen ->
+            // Verifica se a rota atual é a mesma desta aba
+            val isSelected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
+
+            NavigationBarItem(
+                icon = {
+                    when (screen) {
+                        is Screen.Home -> Icon(Icons.Default.Home, contentDescription = null)
+                        is Screen.Cart -> Icon(Icons.Default.ShoppingCart, contentDescription = null)
+                        is Screen.Profile -> Icon(Icons.Default.Person, contentDescription = null)
+                        else -> Icon(Icons.Default.Home, contentDescription = null)
+                    }
+                },
+                label = { Text(screen.route.replaceFirstChar { it.uppercase() }) },
+                selected = isSelected,
+                onClick = {
+                    navController.navigate(screen.route) {
+                        // Evita empilhar várias cópias da mesma tela
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
     }
 }
