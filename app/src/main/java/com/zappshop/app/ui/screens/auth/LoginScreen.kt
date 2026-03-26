@@ -16,51 +16,40 @@ fun LoginScreen(
     viewModel: AuthViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
 
-    LaunchedEffect(uiState.success) {
-        if (uiState.success) onLoginSuccess()
+    LaunchedEffect(uiState.isSuccess) {
+        if (uiState.isSuccess) onLoginSuccess()
     }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Text("ZappShop", style = MaterialTheme.typography.headlineLarge)
-        Spacer(Modifier.height(32.dp))
-
         OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
+            value = uiState.email,
+            onValueChange = { viewModel.onEmailChange(it) },
             label = { Text("E-mail") },
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = uiState.password,
+            onValueChange = { viewModel.onPasswordChange(it) },
             label = { Text("Senha") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(Modifier.height(8.dp))
-
-        uiState.error?.let {
-            Text(it, color = MaterialTheme.colorScheme.error)
-            Spacer(Modifier.height(8.dp))
-        }
-
+        uiState.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
+        Spacer(Modifier.height(16.dp))
         Button(
-            onClick = { viewModel.login(email, password) },
+            onClick = { viewModel.login() },
             modifier = Modifier.fillMaxWidth(),
             enabled = !uiState.isLoading
         ) {
-            if (uiState.isLoading) CircularProgressIndicator(Modifier.size(18.dp))
+            if (uiState.isLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp))
             else Text("Entrar")
         }
-        Spacer(Modifier.height(12.dp))
         TextButton(onClick = onGoToRegister) { Text("Criar conta") }
     }
 }

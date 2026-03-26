@@ -6,8 +6,7 @@ import com.zappshop.app.data.model.Product
 import com.zappshop.app.data.repository.CartRepository
 import com.zappshop.app.data.repository.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,26 +24,33 @@ class ProductDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProductDetailUiState())
-    val uiState: StateFlow<ProductDetailUiState> = _uiState
+    val uiState: StateFlow<ProductDetailUiState> = _uiState.asStateFlow()
 
     fun loadProduct(id: String) {
         viewModelScope.launch {
-            _uiState.value = ProductDetailUiState(isLoading = true)
+            _uiState.update { it.copy(isLoading = true, error = null) }
 
-            val result = productRepository.getProductById(id)
-
-            _uiState.value = if (result.isSuccess) {
-                ProductDetailUiState(product = result.getOrNull())
-            } else {
-                ProductDetailUiState(error = result.exceptionOrNull()?.message)
-            }
+            productRepository.getProductById(id).fold(
+                onSuccess = { product ->
+                    _uiState.update { it.copy(product = product, isLoading = false) }
+                },
+                onFailure = { exception ->
+                    _uiState.update { it.copy(isLoading = false, error = exception.message) }
+                }
+            )
         }
     }
 
     fun addToCart() {
         _uiState.value.product?.let { product ->
-            cartRepository.addItem(product)
-            _uiState.value = _uiState.value.copy(addedToCart = true)
+            viewModelScope.launch {
+                cartRepository.addItem(product)
+                _uiState.update { it.copy(addedToCart = true) }
+            }
         }
+    }
+
+    fun resetCartStatus() {
+        _uiState.update { it.copy(addedToCart = false) }
     }
 }

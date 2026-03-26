@@ -1,28 +1,58 @@
 package com.zappshop.app.data.repository
 
-import com.zappshop.app.data.local.SessionManager
-import com.zappshop.app.data.model.AuthResponse
-import com.zappshop.app.data.model.User
+import com.zappshop.app.data.model.*
+import com.zappshop.app.data.remote.RetrofitInstance
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import javax.inject.Singleton
 
-class AuthRepository @Inject constructor(
-    private val session: SessionManager
-) {
-    suspend fun login(email: String, password: String): Result<AuthResponse> {
-        val fakeUser = User(1, "Usuário Teste", email)
-        val fakeResponse = AuthResponse("fake-token-123", fakeUser)
-        session.saveSession(fakeResponse.token, fakeUser.name, fakeUser.email)
-        return Result.success(fakeResponse)
+@Singleton
+class AuthRepository @Inject constructor() {
+
+    private val api = RetrofitInstance.api
+    private val defaultSlug = "zappshop"
+
+    private val _token = MutableStateFlow<String?>(null)
+    val token: StateFlow<String?> = _token
+
+    private val _userName = MutableStateFlow<String?>(null)
+    val userName: StateFlow<String?> = _userName
+
+    suspend fun login(email: String, password: String): Result<AuthData> {
+        return try {
+            val response = api.login(defaultSlug, LoginRequest(email, password))
+            val body = response.body()
+            if (response.isSuccessful && body?.success == true && body.data != null) {
+                _token.value = body.data.customerId
+                _userName.value = body.data.customerName
+                Result.success(body.data)
+            } else {
+                Result.failure(Exception(body?.error ?: "Falha no login"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    suspend fun register(name: String, email: String, password: String): Result<AuthResponse> {
-        val fakeUser = User(1, name, email)
-        val fakeResponse = AuthResponse("fake-token-123", fakeUser)
-        session.saveSession(fakeResponse.token, fakeUser.name, fakeUser.email)
-        return Result.success(fakeResponse)
+    suspend fun register(name: String, email: String, phone: String, pass: String): Result<AuthData> {
+        return try {
+            val response = api.register(defaultSlug, RegisterRequest(name, email, phone, pass, pass))
+            val body = response.body()
+            if (response.isSuccessful && body?.success == true && body.data != null) {
+                _token.value = body.data.customerId
+                _userName.value = body.data.customerName
+                Result.success(body.data)
+            } else {
+                Result.failure(Exception(body?.error ?: "Erro no cadastro"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    suspend fun logout() = session.clearSession()
-    fun getToken() = session.token
-    fun getUserName() = session.userName
+    fun logout() {
+        _token.value = null
+        _userName.value = null
+    }
 }

@@ -6,7 +6,6 @@ import android.view.View;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
-import com.zappshop.app.data.local.SessionManager;
 import com.zappshop.app.data.remote.ApiService;
 import com.zappshop.app.data.repository.AuthRepository;
 import com.zappshop.app.data.repository.CartRepository;
@@ -34,7 +33,6 @@ import dagger.hilt.android.internal.lifecycle.DefaultViewModelFactories_Internal
 import dagger.hilt.android.internal.managers.ActivityRetainedComponentManager_LifecycleModule_ProvideActivityRetainedLifecycleFactory;
 import dagger.hilt.android.internal.managers.SavedStateHandleHolder;
 import dagger.hilt.android.internal.modules.ApplicationContextModule;
-import dagger.hilt.android.internal.modules.ApplicationContextModule_ProvideContextFactory;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.DoubleCheck;
 import dagger.internal.IdentifierNameString;
@@ -68,20 +66,25 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
     return new Builder();
   }
 
-  public static final class Builder {
-    private ApplicationContextModule applicationContextModule;
+  public static ZappShopApp_HiltComponents.SingletonC create() {
+    return new Builder().build();
+  }
 
+  public static final class Builder {
     private Builder() {
     }
 
+    /**
+     * @deprecated This module is declared, but an instance is not used in the component. This method is a no-op. For more, see https://dagger.dev/unused-modules.
+     */
+    @Deprecated
     public Builder applicationContextModule(ApplicationContextModule applicationContextModule) {
-      this.applicationContextModule = Preconditions.checkNotNull(applicationContextModule);
+      Preconditions.checkNotNull(applicationContextModule);
       return this;
     }
 
     public ZappShopApp_HiltComponents.SingletonC build() {
-      Preconditions.checkBuilderRequirement(applicationContextModule, ApplicationContextModule.class);
-      return new SingletonCImpl(applicationContextModule);
+      return new SingletonCImpl();
     }
   }
 
@@ -400,25 +403,25 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_zappshop_app_ui_screens_cart_CartViewModel = "com.zappshop.app.ui.screens.cart.CartViewModel";
-
-      static String com_zappshop_app_ui_screens_product_ProductDetailViewModel = "com.zappshop.app.ui.screens.product.ProductDetailViewModel";
-
       static String com_zappshop_app_ui_screens_auth_AuthViewModel = "com.zappshop.app.ui.screens.auth.AuthViewModel";
 
       static String com_zappshop_app_ui_screens_home_HomeViewModel = "com.zappshop.app.ui.screens.home.HomeViewModel";
 
-      @KeepFieldType
-      CartViewModel com_zappshop_app_ui_screens_cart_CartViewModel2;
+      static String com_zappshop_app_ui_screens_cart_CartViewModel = "com.zappshop.app.ui.screens.cart.CartViewModel";
 
-      @KeepFieldType
-      ProductDetailViewModel com_zappshop_app_ui_screens_product_ProductDetailViewModel2;
+      static String com_zappshop_app_ui_screens_product_ProductDetailViewModel = "com.zappshop.app.ui.screens.product.ProductDetailViewModel";
 
       @KeepFieldType
       AuthViewModel com_zappshop_app_ui_screens_auth_AuthViewModel2;
 
       @KeepFieldType
       HomeViewModel com_zappshop_app_ui_screens_home_HomeViewModel2;
+
+      @KeepFieldType
+      CartViewModel com_zappshop_app_ui_screens_cart_CartViewModel2;
+
+      @KeepFieldType
+      ProductDetailViewModel com_zappshop_app_ui_screens_product_ProductDetailViewModel2;
     }
   }
 
@@ -445,10 +448,6 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
 
       initialize(savedStateHandleParam, viewModelLifecycleParam);
 
-    }
-
-    private AuthRepository authRepository() {
-      return new AuthRepository(singletonCImpl.sessionManagerProvider.get());
     }
 
     private ProductRepository productRepository() {
@@ -480,9 +479,9 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
 
       static String com_zappshop_app_ui_screens_product_ProductDetailViewModel = "com.zappshop.app.ui.screens.product.ProductDetailViewModel";
 
-      static String com_zappshop_app_ui_screens_home_HomeViewModel = "com.zappshop.app.ui.screens.home.HomeViewModel";
-
       static String com_zappshop_app_ui_screens_auth_AuthViewModel = "com.zappshop.app.ui.screens.auth.AuthViewModel";
+
+      static String com_zappshop_app_ui_screens_home_HomeViewModel = "com.zappshop.app.ui.screens.home.HomeViewModel";
 
       @KeepFieldType
       CartViewModel com_zappshop_app_ui_screens_cart_CartViewModel2;
@@ -491,10 +490,10 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
       ProductDetailViewModel com_zappshop_app_ui_screens_product_ProductDetailViewModel2;
 
       @KeepFieldType
-      HomeViewModel com_zappshop_app_ui_screens_home_HomeViewModel2;
+      AuthViewModel com_zappshop_app_ui_screens_auth_AuthViewModel2;
 
       @KeepFieldType
-      AuthViewModel com_zappshop_app_ui_screens_auth_AuthViewModel2;
+      HomeViewModel com_zappshop_app_ui_screens_home_HomeViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -519,7 +518,7 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.zappshop.app.ui.screens.auth.AuthViewModel 
-          return (T) new AuthViewModel(viewModelCImpl.authRepository());
+          return (T) new AuthViewModel(singletonCImpl.authRepositoryProvider.get());
 
           case 1: // com.zappshop.app.ui.screens.cart.CartViewModel 
           return (T) new CartViewModel(singletonCImpl.cartRepositoryProvider.get());
@@ -606,25 +605,23 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
   }
 
   private static final class SingletonCImpl extends ZappShopApp_HiltComponents.SingletonC {
-    private final ApplicationContextModule applicationContextModule;
-
     private final SingletonCImpl singletonCImpl = this;
 
-    private Provider<SessionManager> sessionManagerProvider;
+    private Provider<AuthRepository> authRepositoryProvider;
 
     private Provider<CartRepository> cartRepositoryProvider;
 
     private Provider<ApiService> provideApiServiceProvider;
 
-    private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
-      this.applicationContextModule = applicationContextModuleParam;
-      initialize(applicationContextModuleParam);
+    private SingletonCImpl() {
+
+      initialize();
 
     }
 
     @SuppressWarnings("unchecked")
-    private void initialize(final ApplicationContextModule applicationContextModuleParam) {
-      this.sessionManagerProvider = DoubleCheck.provider(new SwitchingProvider<SessionManager>(singletonCImpl, 0));
+    private void initialize() {
+      this.authRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<AuthRepository>(singletonCImpl, 0));
       this.cartRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<CartRepository>(singletonCImpl, 1));
       this.provideApiServiceProvider = DoubleCheck.provider(new SwitchingProvider<ApiService>(singletonCImpl, 2));
     }
@@ -662,8 +659,8 @@ public final class DaggerZappShopApp_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.zappshop.app.data.local.SessionManager 
-          return (T) new SessionManager(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+          case 0: // com.zappshop.app.data.repository.AuthRepository 
+          return (T) new AuthRepository();
 
           case 1: // com.zappshop.app.data.repository.CartRepository 
           return (T) new CartRepository();
