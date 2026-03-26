@@ -10,13 +10,13 @@ interface ApiService {
     suspend fun login(
         @Path("slug") slug: String,
         @Body request: LoginRequest
-    ): Response<ApiResponse<StorefrontAuthPayload>>
+    ): Response<ApiResponse<AuthData>>
 
     @POST("{slug}/auth/register")
     suspend fun register(
         @Path("slug") slug: String,
         @Body request: RegisterRequest
-    ): Response<ApiResponse<StorefrontAuthPayload>>
+    ): Response<ApiResponse<AuthData>>
 
     @GET("api/zappshop/products")
     suspend fun getProducts(

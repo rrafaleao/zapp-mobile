@@ -11,7 +11,7 @@ data class LoginRequest(
 data class RegisterRequest(
     @SerializedName("full_name") val fullName: String,
     val email: String,
-    val phone: String,
+    val phone: String? = null,
     val password: String,
     @SerializedName("confirm_password") val confirmPassword: String
 )
