@@ -1,7 +1,6 @@
 package com.zappshop.app.data.repository
 
 import com.google.gson.JsonParser
-import com.zappshop.app.BuildConfig
 import com.zappshop.app.data.local.SessionManager
 import com.zappshop.app.data.model.*
 import com.zappshop.app.data.remote.ApiService
@@ -14,7 +13,7 @@ class AuthRepository @Inject constructor(
     private val session: SessionManager,
     private val api: ApiService
 ) {
-    private val storeSlug = BuildConfig.STORE_SLUG
+    private val storeSlug = "zappshop"
 
     val token: Flow<String?> = session.token
     val userName: Flow<String?> = session.userName
@@ -28,12 +27,17 @@ class AuthRepository @Inject constructor(
 
             if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
                 val payload = response.body()!!.data!!
-                session.saveSession(
-                    token = payload.customerId,
-                    name = payload.customerName,
-                    email = payload.customerEmail
+                val authData = AuthData(
+                    customerId = payload.customerId,
+                    customerName = payload.customerName,
+                    customerEmail = payload.customerEmail
                 )
-                Result.success(payload)
+                session.saveSession(
+                    token = authData.customerId,
+                    name = authData.customerName,
+                    email = authData.customerEmail
+                )
+                Result.success(authData)
             } else {
                 Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error ?: "Falha no login")))
             }
@@ -57,12 +61,17 @@ class AuthRepository @Inject constructor(
 
             if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
                 val payload = response.body()!!.data!!
-                session.saveSession(
-                    token = payload.customerId,
-                    name = payload.customerName,
-                    email = payload.customerEmail
+                val authData = AuthData(
+                    customerId = payload.customerId,
+                    customerName = payload.customerName,
+                    customerEmail = payload.customerEmail
                 )
-                Result.success(payload)
+                session.saveSession(
+                    token = authData.customerId,
+                    name = authData.customerName,
+                    email = authData.customerEmail
+                )
+                Result.success(authData)
             } else {
                 Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error ?: "Erro no cadastro")))
             }
