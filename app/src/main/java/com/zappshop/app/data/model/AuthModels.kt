@@ -80,8 +80,8 @@ data class Product(
     @SerializedName(value = "name", alternate = ["title"]) val name: String? = null,
     val price: Double,
     val description: String? = null,
-    @SerializedName(value = "image", alternate = ["imageUrl", "image_url"]) val image: String? = null,
-    @SerializedName("image_url") val imageUrl: String? = null,
+    @SerializedName("image") val image: String? = null,
+    @SerializedName(value = "image_url", alternate = ["imageUrl"]) val imageUrl: String? = null,
     @SerializedName("store_name") val storeName: String? = "ZappShop",
     val store: StorePayload? = null,
     val promotion: Promotion? = null
