@@ -2,9 +2,6 @@ package com.zappshop.app.ui.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -32,18 +29,7 @@ sealed class Screen(val route: String) {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val authViewModel: AuthViewModel = hiltViewModel()
-    val token by authViewModel.token.collectAsState(initial = null)
-
-    LaunchedEffect(token) {
-        val currentRoute = navController.currentBackStackEntry?.destination?.route
-        if (!token.isNullOrEmpty() && currentRoute == Screen.Login.route) {
-            navController.navigate(Screen.Home.route) {
-                popUpTo(Screen.Login.route) { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-    }
+    hiltViewModel<AuthViewModel>()
 
     NavHost(
         navController = navController,
