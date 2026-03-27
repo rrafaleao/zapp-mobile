@@ -4,11 +4,13 @@ import com.google.gson.annotations.SerializedName
 
 // ========== REQUISIÇÕES ==========
 data class LoginRequest(
+    @SerializedName("store_slug") val storeSlug: String,
     val email: String,
     val password: String
 )
 
 data class RegisterRequest(
+    @SerializedName("store_slug") val storeSlug: String,
     @SerializedName("full_name") val fullName: String,
     val email: String,
     val phone: String? = null,
@@ -28,6 +30,26 @@ data class AuthData(
     @SerializedName(value = "customer_id", alternate = ["user_id"]) val customerId: String?,
     @SerializedName(value = "customer_name", alternate = ["user_name", "full_name"]) val customerName: String?,
     @SerializedName(value = "customer_email", alternate = ["user_email", "email"]) val customerEmail: String?
+)
+
+data class MobileAuthPayload(
+    val token: String?,
+    @SerializedName("token_type") val tokenType: String? = null,
+    @SerializedName("expires_in_seconds") val expiresInSeconds: Long? = null,
+    val customer: CustomerPayload? = null,
+    val store: StorePayload? = null
+)
+
+data class CustomerPayload(
+    val id: String?,
+    @SerializedName("full_name") val fullName: String? = null,
+    val email: String?
+)
+
+data class StorePayload(
+    val id: String?,
+    val slug: String?,
+    val name: String?
 )
 
 data class ZappShopResponse(
@@ -56,6 +78,7 @@ data class Product(
     @SerializedName(value = "image", alternate = ["imageUrl", "image_url"]) val image: String? = null,
     @SerializedName("image_url") val imageUrl: String? = null,
     @SerializedName("store_name") val storeName: String? = "ZappShop",
+    val store: StorePayload? = null,
     val promotion: Promotion? = null
 )
 

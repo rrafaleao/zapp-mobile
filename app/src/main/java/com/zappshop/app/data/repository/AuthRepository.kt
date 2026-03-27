@@ -22,7 +22,7 @@ class AuthRepository @Inject constructor(
     suspend fun login(email: String, password: String): Result<AuthData> {
         return try {
             val normalizedEmail = email.trim().lowercase()
-            val request = LoginRequest(email = normalizedEmail, password = password)
+            val request = LoginRequest(storeSlug = storeSlug, email = normalizedEmail, password = password)
 
             val response = api.login(request = request)
             val finalResponse = if (response.isSuccessful) {
@@ -35,11 +35,13 @@ class AuthRepository @Inject constructor(
 
             if (finalResponse.isSuccessful && finalResponse.body()?.success == true && finalResponse.body()?.data != null) {
                 val payload = finalResponse.body()!!.data!!
-                val id = payload.customerId
-                val name = payload.customerName
-                val payloadEmail = payload.customerEmail
+                val customer = payload.customer
+                val id = customer?.id
+                val name = customer?.fullName
+                val payloadEmail = customer?.email
+                val tokenValue = payload.token
 
-                if (id.isNullOrBlank() || name.isNullOrBlank() || payloadEmail.isNullOrBlank()) {
+                if (id.isNullOrBlank() || name.isNullOrBlank() || payloadEmail.isNullOrBlank() || tokenValue.isNullOrBlank()) {
                     return Result.failure(Exception("Resposta de login invalida da API"))
                 }
 
@@ -49,7 +51,7 @@ class AuthRepository @Inject constructor(
                     customerEmail = payloadEmail
                 )
                 session.saveSession(
-                    token = id,
+                    token = tokenValue,
                     name = name,
                     email = payloadEmail
                 )
@@ -72,6 +74,7 @@ class AuthRepository @Inject constructor(
     suspend fun register(name: String, email: String, phone: String?, password: String): Result<AuthData> {
         return try {
             val request = RegisterRequest(
+                storeSlug = storeSlug,
                 fullName = name.trim(),
                 email = email.trim().lowercase(),
                 phone = phone,
@@ -89,11 +92,13 @@ class AuthRepository @Inject constructor(
 
             if (finalResponse.isSuccessful && finalResponse.body()?.success == true && finalResponse.body()?.data != null) {
                 val payload = finalResponse.body()!!.data!!
-                val id = payload.customerId
-                val nameValue = payload.customerName
-                val emailValue = payload.customerEmail
+                val customer = payload.customer
+                val id = customer?.id
+                val nameValue = customer?.fullName
+                val emailValue = customer?.email
+                val tokenValue = payload.token
 
-                if (id.isNullOrBlank() || nameValue.isNullOrBlank() || emailValue.isNullOrBlank()) {
+                if (id.isNullOrBlank() || nameValue.isNullOrBlank() || emailValue.isNullOrBlank() || tokenValue.isNullOrBlank()) {
                     return Result.failure(Exception("Resposta de cadastro invalida da API"))
                 }
 
@@ -103,7 +108,7 @@ class AuthRepository @Inject constructor(
                     customerEmail = emailValue
                 )
                 session.saveSession(
-                    token = id,
+                    token = tokenValue,
                     name = nameValue,
                     email = emailValue
                 )

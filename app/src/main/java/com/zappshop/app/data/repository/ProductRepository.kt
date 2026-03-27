@@ -3,11 +3,14 @@ package com.zappshop.app.data.repository
 import com.zappshop.app.data.model.Category
 import com.zappshop.app.data.model.Product
 import com.zappshop.app.data.remote.ApiService
+import com.zappshop.app.BuildConfig
 import javax.inject.Inject
 
 class ProductRepository @Inject constructor(
     private val api: ApiService
 ) {
+    private val storeSlug = BuildConfig.STORE_SLUG
+
     suspend fun getProducts(
         search: String? = null,
         category: String? = null,
@@ -15,9 +18,21 @@ class ProductRepository @Inject constructor(
         page: Int = 1
     ): Result<List<Product>> {
         return try {
-            val response = api.getProducts(search = search, category = category, sortBy = sortBy, page = page)
+            val response = api.getProducts(
+                search = search,
+                storeSlug = storeSlug,
+                categoryId = null,
+                page = page,
+                perPage = 20
+            )
             if (response.isSuccessful && response.body()?.success == true) {
-                Result.success(response.body()?.data.orEmpty())
+                val normalized = response.body()?.data.orEmpty().map { product ->
+                    product.copy(
+                        name = product.name ?: "Produto sem nome",
+                        storeName = product.storeName ?: product.store?.name ?: "Loja Parceira"
+                    )
+                }
+                Result.success(normalized)
             } else {
                 Result.failure(Exception(response.body()?.error ?: "Erro ao carregar produtos"))
             }

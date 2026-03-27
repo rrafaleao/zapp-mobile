@@ -6,34 +6,37 @@ import retrofit2.http.*
 
 interface ApiService {
 
-    @POST("auth/login")
+    @POST("api/v1/auth/login")
     suspend fun login(
         @Body request: LoginRequest
-    ): Response<ApiResponse<AuthData>>
+    ): Response<ApiResponse<MobileAuthPayload>>
 
+    // Legacy storefront endpoint compatibility.
     @POST("{slug}/auth/login")
     suspend fun storefrontLogin(
         @Path("slug") slug: String,
         @Body request: LoginRequest
-    ): Response<ApiResponse<AuthData>>
+    ): Response<ApiResponse<MobileAuthPayload>>
 
-    @POST("auth/register")
+    @POST("api/v1/auth/register")
     suspend fun register(
         @Body request: RegisterRequest
-    ): Response<ApiResponse<AuthData>>
+    ): Response<ApiResponse<MobileAuthPayload>>
 
+    // Legacy storefront endpoint compatibility.
     @POST("{slug}/auth/register")
     suspend fun storefrontRegister(
         @Path("slug") slug: String,
         @Body request: RegisterRequest
-    ): Response<ApiResponse<AuthData>>
+    ): Response<ApiResponse<MobileAuthPayload>>
 
-    @GET("api/zappshop/products")
+    @GET("api/v1/products")
     suspend fun getProducts(
         @Query("search") search: String? = null,
-        @Query("category") category: String? = null,
-        @Query("sort_by") sortBy: String? = null,
-        @Query("page") page: Int = 1
+        @Query("store_slug") storeSlug: String? = null,
+        @Query("category_id") categoryId: String? = null,
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 20
     ): Response<PaginatedResponse<Product>>
 
     @GET("api/zappshop/product/{id}")
