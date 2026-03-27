@@ -18,7 +18,7 @@ class ProductRepository @Inject constructor(
         page: Int = 1
     ): Result<List<Product>> {
         return try {
-            val response = api.getProductsV1(
+            val response = api.fetchProductsV1(
                 search = search,
                 storeSlug = storeSlug,
                 categoryId = null,
