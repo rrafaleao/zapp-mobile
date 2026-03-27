@@ -37,7 +37,7 @@ fun CartScreen(
                         Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
                             Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = cartItem.product.name, style = MaterialTheme.typography.titleMedium)
+                                    Text(text = cartItem.product.name ?: "Produto sem nome", style = MaterialTheme.typography.titleMedium)
                                     Text(text = "R$ ${cartItem.product.price}", style = MaterialTheme.typography.bodyMedium)
                                 }
                                 Row(verticalAlignment = Alignment.CenterVertically) {

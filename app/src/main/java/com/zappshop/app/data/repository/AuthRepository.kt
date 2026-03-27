@@ -13,8 +13,6 @@ class AuthRepository @Inject constructor(
     private val session: SessionManager,
     private val api: ApiService
 ) {
-    private val storeSlug = "zappshop"
-
     val token: Flow<String?> = session.token
     val userName: Flow<String?> = session.userName
 
@@ -25,15 +23,23 @@ class AuthRepository @Inject constructor(
 
             if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
                 val payload = response.body()!!.data!!
+                val id = payload.customerId
+                val name = payload.customerName
+                val email = payload.customerEmail
+
+                if (id.isNullOrBlank() || name.isNullOrBlank() || email.isNullOrBlank()) {
+                    return Result.failure(Exception("Resposta de login invalida da API"))
+                }
+
                 val authData = AuthData(
-                    customerId = payload.customerId,
-                    customerName = payload.customerName,
-                    customerEmail = payload.customerEmail
+                    customerId = id,
+                    customerName = name,
+                    customerEmail = email
                 )
                 session.saveSession(
-                    token = authData.customerId,
-                    name = authData.customerName,
-                    email = authData.customerEmail
+                    token = id,
+                    name = name,
+                    email = email
                 )
                 Result.success(authData)
             } else {
@@ -57,15 +63,23 @@ class AuthRepository @Inject constructor(
 
             if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
                 val payload = response.body()!!.data!!
+                val id = payload.customerId
+                val nameValue = payload.customerName
+                val emailValue = payload.customerEmail
+
+                if (id.isNullOrBlank() || nameValue.isNullOrBlank() || emailValue.isNullOrBlank()) {
+                    return Result.failure(Exception("Resposta de cadastro invalida da API"))
+                }
+
                 val authData = AuthData(
-                    customerId = payload.customerId,
-                    customerName = payload.customerName,
-                    customerEmail = payload.customerEmail
+                    customerId = id,
+                    customerName = nameValue,
+                    customerEmail = emailValue
                 )
                 session.saveSession(
-                    token = authData.customerId,
-                    name = authData.customerName,
-                    email = authData.customerEmail
+                    token = id,
+                    name = nameValue,
+                    email = emailValue
                 )
                 Result.success(authData)
             } else {

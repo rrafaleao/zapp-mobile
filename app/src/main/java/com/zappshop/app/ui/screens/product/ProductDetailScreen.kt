@@ -68,13 +68,13 @@ fun ProductDetailScreen(
                     ) {
                         AsyncImage(
                             model = product.imageUrl ?: product.image,
-                            contentDescription = product.name,
+                            contentDescription = product.name ?: "Produto",
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(300.dp)
                         )
                         Spacer(Modifier.height(16.dp))
-                        Text(product.name, style = MaterialTheme.typography.headlineMedium)
+                        Text(product.name ?: "Produto sem nome", style = MaterialTheme.typography.headlineMedium)
                         Text("R$ ${product.price}", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.height(16.dp))
                         Text(product.description ?: "Sem descrição disponível.")

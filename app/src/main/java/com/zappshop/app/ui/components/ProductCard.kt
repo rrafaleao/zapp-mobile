@@ -24,7 +24,7 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
             AsyncImage(
                 // CORREÇÃO: Tratando nulidade da URL da imagem
                 model = product.imageUrl ?: "",
-                contentDescription = product.name,
+                contentDescription = product.name ?: "Produto",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp),
@@ -32,7 +32,7 @@ fun ProductCard(product: Product, onClick: () -> Unit) {
             )
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
-                    text = product.name,
+                    text = product.name ?: "Produto sem nome",
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
