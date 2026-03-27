@@ -42,7 +42,7 @@ interface ApiService {
         @Query("category_id") categoryId: String? = null,
         @Query("page") page: Int = 1,
         @Query("per_page") perPage: Int = 20
-    ): Response<PaginatedResponse<Product>>
+    ): Response<ProductsResponse>
 
     @GET("api/zappshop/product/{id}")
     suspend fun getProductById(

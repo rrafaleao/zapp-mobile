@@ -21,3 +21,10 @@ data class Pagination(
     val has_next: Boolean,
     val has_prev: Boolean
 )
+
+data class ProductsResponse(
+    val success: Boolean,
+    val data: List<Product>?,
+    val pagination: Pagination?,
+    val error: String? = null
+)
