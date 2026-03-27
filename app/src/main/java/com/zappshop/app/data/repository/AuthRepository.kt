@@ -1,6 +1,7 @@
 package com.zappshop.app.data.repository
 
 import com.google.gson.JsonParser
+import com.zappshop.app.BuildConfig
 import com.zappshop.app.data.local.SessionManager
 import com.zappshop.app.data.model.*
 import com.zappshop.app.data.remote.ApiService
@@ -13,37 +14,55 @@ class AuthRepository @Inject constructor(
     private val session: SessionManager,
     private val api: ApiService
 ) {
+    private val storeSlug = BuildConfig.STORE_SLUG
+
     val token: Flow<String?> = session.token
     val userName: Flow<String?> = session.userName
 
     suspend fun login(email: String, password: String): Result<AuthData> {
         return try {
-            val response = api.login(request = LoginRequest(email = email.trim(), password = password)
-            )
+            val normalizedEmail = email.trim().lowercase()
+            val request = LoginRequest(email = normalizedEmail, password = password)
 
-            if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
-                val payload = response.body()!!.data!!
+            val response = api.login(request = request)
+            val finalResponse = if (response.isSuccessful) {
+                response
+            } else if (response.code() == 401 || response.code() == 404) {
+                api.storefrontLogin(slug = storeSlug, request = request)
+            } else {
+                response
+            }
+
+            if (finalResponse.isSuccessful && finalResponse.body()?.success == true && finalResponse.body()?.data != null) {
+                val payload = finalResponse.body()!!.data!!
                 val id = payload.customerId
                 val name = payload.customerName
-                val email = payload.customerEmail
+                val payloadEmail = payload.customerEmail
 
-                if (id.isNullOrBlank() || name.isNullOrBlank() || email.isNullOrBlank()) {
+                if (id.isNullOrBlank() || name.isNullOrBlank() || payloadEmail.isNullOrBlank()) {
                     return Result.failure(Exception("Resposta de login invalida da API"))
                 }
 
                 val authData = AuthData(
                     customerId = id,
                     customerName = name,
-                    customerEmail = email
+                    customerEmail = payloadEmail
                 )
                 session.saveSession(
                     token = id,
                     name = name,
-                    email = email
+                    email = payloadEmail
                 )
                 Result.success(authData)
             } else {
-                Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error ?: "Falha no login")))
+                Result.failure(
+                    Exception(
+                        parseApiError(
+                            finalResponse.errorBody()?.string(),
+                            finalResponse.body()?.error ?: "Falha no login"
+                        )
+                    )
+                )
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -52,17 +71,24 @@ class AuthRepository @Inject constructor(
 
     suspend fun register(name: String, email: String, phone: String?, password: String): Result<AuthData> {
         return try {
-            val response = api.register(request = RegisterRequest(
-                    fullName = name.trim(),
-                    email = email.trim(),
-                    phone = phone,
-                    password = password,
-                    confirmPassword = password
-                )
+            val request = RegisterRequest(
+                fullName = name.trim(),
+                email = email.trim().lowercase(),
+                phone = phone,
+                password = password,
+                confirmPassword = password
             )
+            val response = api.register(request = request)
+            val finalResponse = if (response.isSuccessful) {
+                response
+            } else if (response.code() == 404) {
+                api.storefrontRegister(slug = storeSlug, request = request)
+            } else {
+                response
+            }
 
-            if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
-                val payload = response.body()!!.data!!
+            if (finalResponse.isSuccessful && finalResponse.body()?.success == true && finalResponse.body()?.data != null) {
+                val payload = finalResponse.body()!!.data!!
                 val id = payload.customerId
                 val nameValue = payload.customerName
                 val emailValue = payload.customerEmail
@@ -83,7 +109,14 @@ class AuthRepository @Inject constructor(
                 )
                 Result.success(authData)
             } else {
-                Result.failure(Exception(parseApiError(response.errorBody()?.string(), response.body()?.error ?: "Erro no cadastro")))
+                Result.failure(
+                    Exception(
+                        parseApiError(
+                            finalResponse.errorBody()?.string(),
+                            finalResponse.body()?.error ?: "Erro no cadastro"
+                        )
+                    )
+                )
             }
         } catch (e: Exception) {
             Result.failure(e)

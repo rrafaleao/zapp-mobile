@@ -11,8 +11,20 @@ interface ApiService {
         @Body request: LoginRequest
     ): Response<ApiResponse<AuthData>>
 
+    @POST("{slug}/auth/login")
+    suspend fun storefrontLogin(
+        @Path("slug") slug: String,
+        @Body request: LoginRequest
+    ): Response<ApiResponse<AuthData>>
+
     @POST("auth/register")
     suspend fun register(
+        @Body request: RegisterRequest
+    ): Response<ApiResponse<AuthData>>
+
+    @POST("{slug}/auth/register")
+    suspend fun storefrontRegister(
+        @Path("slug") slug: String,
         @Body request: RegisterRequest
     ): Response<ApiResponse<AuthData>>
 
