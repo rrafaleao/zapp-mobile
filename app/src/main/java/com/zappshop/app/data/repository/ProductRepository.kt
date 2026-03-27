@@ -1,5 +1,6 @@
 package com.zappshop.app.data.repository
 
+import android.os.Build
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.zappshop.app.data.model.Category
@@ -14,6 +15,14 @@ class ProductRepository @Inject constructor(
 ) {
     private val gson = Gson()
     private val storeSlug = BuildConfig.STORE_SLUG
+    private val baseUrl: String
+        get() {
+            val isEmulator = Build.FINGERPRINT.contains("generic", ignoreCase = true) ||
+                Build.MODEL.contains("Emulator", ignoreCase = true) ||
+                Build.MODEL.contains("Android SDK built for x86", ignoreCase = true)
+
+            return if (isEmulator) "http://10.0.2.2:5000" else "http://172.20.48.116:5000"
+        }
 
     suspend fun getProducts(
         search: String? = null,
@@ -38,9 +47,11 @@ class ProductRepository @Inject constructor(
                 val parsed = gson.fromJson(rawBody, ProductsResponse::class.java)
                 if (parsed.success) {
                     val normalized = parsed.data.orEmpty().map { product ->
-                        product.copy(
+                        normalizeProductImage(
+                            product.copy(
                             name = product.name ?: "Produto sem nome",
                             storeName = product.storeName ?: product.store?.name ?: "Loja Parceira"
+                            )
                         )
                     }
                     return Result.success(normalized)
@@ -74,13 +85,29 @@ class ProductRepository @Inject constructor(
         return try {
             val response = api.getProductById(id)
             if (response.isSuccessful && response.body()?.success == true && response.body()?.data != null) {
-                Result.success(response.body()!!.data!!)
+                Result.success(normalizeProductImage(response.body()!!.data!!))
             } else {
                 Result.failure(Exception(response.body()?.error ?: "Produto não encontrado"))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    private fun normalizeProductImage(product: Product): Product {
+        val raw = (product.imageUrl ?: product.image)?.trim().orEmpty()
+        if (raw.isBlank()) {
+            return product.copy(imageUrl = null, image = null)
+        }
+
+        val normalized = when {
+            raw.startsWith("http://", ignoreCase = true) || raw.startsWith("https://", ignoreCase = true) -> raw
+            raw.startsWith("//") -> "https:$raw"
+            raw.startsWith("/") -> "$baseUrl$raw"
+            else -> "$baseUrl/$raw"
+        }
+
+        return product.copy(imageUrl = normalized, image = normalized)
     }
 
     suspend fun getCategories(): Result<List<Category>> {
