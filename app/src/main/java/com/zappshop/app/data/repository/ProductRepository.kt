@@ -2,10 +2,10 @@ package com.zappshop.app.data.repository
 
 import android.os.Build
 import com.google.gson.Gson
+import com.google.gson.JsonElement
 import com.google.gson.JsonParser
 import com.zappshop.app.data.model.Category
 import com.zappshop.app.data.model.Product
-import com.zappshop.app.data.model.ProductsResponse
 import com.zappshop.app.data.remote.ApiService
 import com.zappshop.app.BuildConfig
 import javax.inject.Inject
@@ -44,20 +44,50 @@ class ProductRepository @Inject constructor(
                     return Result.failure(Exception("Resposta vazia da API de produtos"))
                 }
 
-                val parsed = gson.fromJson(rawBody, ProductsResponse::class.java)
-                if (parsed.success) {
-                    val normalized = parsed.data.orEmpty().map { product ->
-                        normalizeProductImage(
-                            product.copy(
-                            name = product.name ?: "Produto sem nome",
-                            storeName = product.storeName ?: product.store?.name ?: "Loja Parceira"
-                            )
+                val root = JsonParser.parseString(rawBody).asJsonObject
+                val success = root.get("success")?.asBoolean == true
+                if (success) {
+                    val products = mutableListOf<Product>()
+                    val dataArray = root.getAsJsonArray("data")
+
+                    dataArray?.forEach { item ->
+                        if (!item.isJsonObject) return@forEach
+                        val obj = item.asJsonObject
+
+                        val id = obj.getAsSafeString("id") ?: return@forEach
+                        val name = obj.getAsSafeString("name")
+                            ?: obj.getAsSafeString("title")
+                            ?: "Produto sem nome"
+                        val price = obj.getAsSafeDouble("price") ?: 0.0
+                        val description = obj.getAsSafeString("description")
+
+                        // Suporta payloads diferentes: image_url, image, url, images[0].url
+                        val rawImage = obj.getAsSafeString("image_url")
+                            ?: obj.getAsSafeString("image")
+                            ?: obj.getAsSafeString("url")
+                            ?: obj.getFirstImageUrlFromArray("images")
+
+                        val storeName = obj.getAsSafeString("store_name")
+                            ?: obj.getAsJsonObject("store")?.getAsSafeString("name")
+                            ?: "Loja Parceira"
+
+                        val normalizedImage = normalizeImagePath(rawImage)
+                        val product = Product(
+                            id = id,
+                            name = name,
+                            price = price,
+                            description = description,
+                            image = normalizedImage,
+                            imageUrl = normalizedImage,
+                            storeName = storeName
                         )
+                        products.add(product)
                     }
-                    return Result.success(normalized)
+
+                    return Result.success(products)
                 }
 
-                return Result.failure(Exception(parsed.error ?: "Erro ao carregar produtos"))
+                return Result.failure(Exception(root.getAsSafeString("error") ?: "Erro ao carregar produtos"))
             } else {
                 val errorBody = response.errorBody()?.string()
                 val errorMsg = try {
@@ -96,8 +126,14 @@ class ProductRepository @Inject constructor(
 
     private fun normalizeProductImage(product: Product): Product {
         val raw = (product.imageUrl ?: product.image)?.trim().orEmpty()
+        val normalized = normalizeImagePath(raw)
+        return product.copy(imageUrl = normalized, image = normalized)
+    }
+
+    private fun normalizeImagePath(rawPath: String?): String? {
+        val raw = rawPath?.trim().orEmpty()
         if (raw.isBlank()) {
-            return product.copy(imageUrl = null, image = null)
+            return null
         }
 
         val normalized = when {
@@ -106,8 +142,31 @@ class ProductRepository @Inject constructor(
             raw.startsWith("/") -> "$baseUrl$raw"
             else -> "$baseUrl/$raw"
         }
+        return normalized
+    }
 
-        return product.copy(imageUrl = normalized, image = normalized)
+    private fun com.google.gson.JsonObject.getAsSafeString(name: String): String? {
+        val e: JsonElement = this.get(name) ?: return null
+        if (e.isJsonNull) return null
+        return runCatching { e.asString }.getOrNull()?.takeIf { it.isNotBlank() }
+    }
+
+    private fun com.google.gson.JsonObject.getAsSafeDouble(name: String): Double? {
+        val e: JsonElement = this.get(name) ?: return null
+        if (e.isJsonNull) return null
+        return runCatching { e.asDouble }.getOrNull()
+            ?: runCatching { e.asString.replace(",", ".").toDouble() }.getOrNull()
+    }
+
+    private fun com.google.gson.JsonObject.getFirstImageUrlFromArray(arrayName: String): String? {
+        val arr = this.getAsJsonArray(arrayName) ?: return null
+        if (arr.size() == 0) return null
+        val first = arr[0]
+        if (!first.isJsonObject) return null
+        val firstObj = first.asJsonObject
+        return firstObj.getAsSafeString("url")
+            ?: firstObj.getAsSafeString("image_url")
+            ?: firstObj.getAsSafeString("image")
     }
 
     suspend fun getCategories(): Result<List<Category>> {
