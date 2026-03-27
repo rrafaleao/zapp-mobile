@@ -3,6 +3,9 @@ package com.zappshop.app.ui.screens.cart
 import androidx.lifecycle.ViewModel
 import com.zappshop.app.data.repository.CartRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -11,6 +14,8 @@ class CartViewModel @Inject constructor(
 ) : ViewModel() {
 
     val uiState = repository.items
+    private val _checkoutSuccess = MutableStateFlow(false)
+    val checkoutSuccess: StateFlow<Boolean> = _checkoutSuccess.asStateFlow()
 
     fun getTotalPrice(): Double {
         return repository.getTotal()
@@ -26,5 +31,10 @@ class CartViewModel @Inject constructor(
 
     fun checkout() {
         repository.clearCart()
+        _checkoutSuccess.value = true
+    }
+
+    fun consumeCheckoutSuccess() {
+        _checkoutSuccess.value = false
     }
 }

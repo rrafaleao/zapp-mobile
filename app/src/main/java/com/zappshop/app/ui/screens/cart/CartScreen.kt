@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,8 +21,21 @@ fun CartScreen(
     viewModel: CartViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val checkoutSuccess by viewModel.checkoutSuccess.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(checkoutSuccess) {
+        if (checkoutSuccess) {
+            scope.launch {
+                snackbarHostState.showSnackbar("Compra finalizada com sucesso!")
+            }
+            viewModel.consumeCheckoutSuccess()
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         topBar = {
             TopAppBar(title = { Text("Meu Carrinho") })
         }
