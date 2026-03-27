@@ -230,12 +230,22 @@ fun HomeScreen(
             // ── Products grid / states ───────────────────────────────────────────
             when {
                 uiState.isLoading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator(color = Color(0xFF4B8BF4))
                     }
                 }
                 uiState.error != null -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("😕", fontSize = 40.sp)
                             Spacer(Modifier.height(8.dp))
@@ -249,6 +259,9 @@ fun HomeScreen(
                 }
                 else -> {
                     LazyVerticalGrid(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                         columns = GridCells.Fixed(2),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
