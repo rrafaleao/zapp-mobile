@@ -1,7 +1,10 @@
 package com.zappshop.app.data.repository
 
+import com.google.gson.Gson
+import com.google.gson.JsonParser
 import com.zappshop.app.data.model.Category
 import com.zappshop.app.data.model.Product
+import com.zappshop.app.data.model.ProductsResponse
 import com.zappshop.app.data.remote.ApiService
 import com.zappshop.app.BuildConfig
 import javax.inject.Inject
@@ -9,6 +12,7 @@ import javax.inject.Inject
 class ProductRepository @Inject constructor(
     private val api: ApiService
 ) {
+    private val gson = Gson()
     private val storeSlug = BuildConfig.STORE_SLUG
 
     suspend fun getProducts(
@@ -25,16 +29,41 @@ class ProductRepository @Inject constructor(
                 page = page,
                 perPage = 20
             )
-            if (response.isSuccessful && response.body()?.success == true) {
-                val normalized = response.body()?.data.orEmpty().map { product ->
-                    product.copy(
-                        name = product.name ?: "Produto sem nome",
-                        storeName = product.storeName ?: product.store?.name ?: "Loja Parceira"
-                    )
+            if (response.isSuccessful) {
+                val rawBody = response.body()?.string()
+                if (rawBody.isNullOrBlank()) {
+                    return Result.failure(Exception("Resposta vazia da API de produtos"))
                 }
-                Result.success(normalized)
+
+                val parsed = gson.fromJson(rawBody, ProductsResponse::class.java)
+                if (parsed.success) {
+                    val normalized = parsed.data.orEmpty().map { product ->
+                        product.copy(
+                            name = product.name ?: "Produto sem nome",
+                            storeName = product.storeName ?: product.store?.name ?: "Loja Parceira"
+                        )
+                    }
+                    return Result.success(normalized)
+                }
+
+                return Result.failure(Exception(parsed.error ?: "Erro ao carregar produtos"))
             } else {
-                Result.failure(Exception(response.body()?.error ?: "Erro ao carregar produtos"))
+                val errorBody = response.errorBody()?.string()
+                val errorMsg = try {
+                    if (errorBody.isNullOrBlank()) {
+                        "Erro ao carregar produtos"
+                    } else {
+                        val root = JsonParser.parseString(errorBody).asJsonObject
+                        if (root.has("error") && !root.get("error").isJsonNull) {
+                            root.get("error").asString
+                        } else {
+                            "Erro ao carregar produtos"
+                        }
+                    }
+                } catch (_: Exception) {
+                    "Erro ao carregar produtos"
+                }
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
             Result.failure(e)

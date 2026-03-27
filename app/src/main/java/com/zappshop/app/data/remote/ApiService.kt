@@ -1,6 +1,7 @@
 package com.zappshop.app.data.remote
 
 import com.zappshop.app.data.model.*
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -42,7 +43,7 @@ interface ApiService {
         @Query("category_id") categoryId: String? = null,
         @Query("page") page: Int = 1,
         @Query("per_page") perPage: Int = 20
-    ): Response<ProductsResponse>
+    ): Response<ResponseBody>
 
     @GET("api/zappshop/product/{id}")
     suspend fun getProductById(
