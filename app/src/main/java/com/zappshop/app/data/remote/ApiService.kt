@@ -6,6 +6,11 @@ import retrofit2.http.*
 
 interface ApiService {
 
+    @POST("auth/login")
+    suspend fun userLogin(
+        @Body request: UserLoginRequest
+    ): Response<ApiResponse<AuthData>>
+
     @POST("api/v1/auth/login")
     suspend fun login(
         @Body request: LoginRequest

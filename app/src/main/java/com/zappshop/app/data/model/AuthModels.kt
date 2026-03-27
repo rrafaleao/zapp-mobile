@@ -3,6 +3,11 @@ package com.zappshop.app.data.model
 import com.google.gson.annotations.SerializedName
 
 // ========== REQUISIÇÕES ==========
+data class UserLoginRequest(
+    val email: String,
+    val password: String
+)
+
 data class LoginRequest(
     @SerializedName("store_slug") val storeSlug: String,
     val email: String,

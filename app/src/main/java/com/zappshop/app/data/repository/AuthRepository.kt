@@ -22,13 +22,38 @@ class AuthRepository @Inject constructor(
     suspend fun login(email: String, password: String): Result<AuthData> {
         return try {
             val normalizedEmail = email.trim().lowercase()
-            val request = LoginRequest(storeSlug = storeSlug, email = normalizedEmail, password = password)
+            val userRequest = UserLoginRequest(email = normalizedEmail, password = password)
+            val storeRequest = LoginRequest(storeSlug = storeSlug, email = normalizedEmail, password = password)
 
-            val response = api.login(request = request)
+            val userResponse = api.userLogin(request = userRequest)
+            if (userResponse.isSuccessful && userResponse.body()?.success == true && userResponse.body()?.data != null) {
+                val payload = userResponse.body()!!.data!!
+                val id = payload.customerId
+                val name = payload.customerName
+                val payloadEmail = payload.customerEmail
+
+                if (id.isNullOrBlank() || name.isNullOrBlank() || payloadEmail.isNullOrBlank()) {
+                    return Result.failure(Exception("Resposta de login de usuario invalida da API"))
+                }
+
+                val authData = AuthData(
+                    customerId = id,
+                    customerName = name,
+                    customerEmail = payloadEmail
+                )
+                session.saveSession(
+                    token = id,
+                    name = name,
+                    email = payloadEmail
+                )
+                return Result.success(authData)
+            }
+
+            val response = api.login(request = storeRequest)
             val finalResponse = if (response.isSuccessful) {
                 response
             } else if (response.code() == 401 || response.code() == 404) {
-                api.storefrontLogin(slug = storeSlug, request = request)
+                api.storefrontLogin(slug = storeSlug, request = storeRequest)
             } else {
                 response
             }
@@ -57,11 +82,16 @@ class AuthRepository @Inject constructor(
                 )
                 Result.success(authData)
             } else {
+                val fallbackMessage = if (finalResponse.code() == 404) {
+                    "Loja nao encontrada (store_slug='$storeSlug'). Verifique o slug da loja no BuildConfig."
+                } else {
+                    "Falha no login"
+                }
                 Result.failure(
                     Exception(
                         parseApiError(
                             finalResponse.errorBody()?.string(),
-                            finalResponse.body()?.error ?: "Falha no login"
+                            finalResponse.body()?.error ?: fallbackMessage
                         )
                     )
                 )
@@ -114,11 +144,16 @@ class AuthRepository @Inject constructor(
                 )
                 Result.success(authData)
             } else {
+                val fallbackMessage = if (finalResponse.code() == 404) {
+                    "Loja nao encontrada (store_slug='$storeSlug'). Verifique o slug da loja no BuildConfig."
+                } else {
+                    "Erro no cadastro"
+                }
                 Result.failure(
                     Exception(
                         parseApiError(
                             finalResponse.errorBody()?.string(),
-                            finalResponse.body()?.error ?: "Erro no cadastro"
+                            finalResponse.body()?.error ?: fallbackMessage
                         )
                     )
                 )
