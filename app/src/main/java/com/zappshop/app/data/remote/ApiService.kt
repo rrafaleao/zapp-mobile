@@ -36,7 +36,7 @@ interface ApiService {
     ): Response<ApiResponse<MobileAuthPayload>>
 
     @GET("api/v1/products")
-    suspend fun getProducts(
+    suspend fun getProductsV1(
         @Query("search") search: String? = null,
         @Query("store_slug") storeSlug: String? = null,
         @Query("category_id") categoryId: String? = null,
